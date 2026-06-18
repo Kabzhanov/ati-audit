@@ -4,7 +4,7 @@ Open-source Python CLI that computes the **[AI Trust Index](https://bizdnai.com/
 
 ## What is AI Trust Index?
 
-AI Trust Index (ATI) is a standard for measuring trustworthiness of IT and AI projects across 11 governance directions (G1–G11). It covers systems registry, risk analysis, maturity, compliance, team credentials, customer ratings, governance processes, AI policy, RK Law on AI, ISO 42001, and behavioral robustness (red-team testing).
+AI Trust Index (ATI) is a standard for measuring trustworthiness of IT and AI projects across 11 governance directions (G1–G11). It covers systems registry, risk analysis, maturity, compliance, team credentials, customer ratings, governance processes, AI policy, national AI-law compliance, ISO 42001, and behavioral robustness (red-team testing).
 
 See full methodology: [bizdnai.com/index/](https://bizdnai.com/index/)
 
@@ -43,11 +43,15 @@ ati-audit run --self --out report.html
 | G6 | Customer ratings | Always (inactive if <3 reviews) |
 | G7 | Governance processes | Always |
 | G8 | AI usage policy | Only when `has_ai: true` |
-| G9 | RK Law on AI | Only when `has_ai: true` |
+| G9 | National AI-law compliance | Only when `has_ai: true` |
 | G10 | ISO/IEC 42001 | Only when `has_ai: true` |
 | G11 | Behavioral robustness | Only when `has_ai: true` |
 
 **Index = mean of active & applicable directions.**
+
+### Jurisdiction (G9)
+
+G9 is jurisdiction-aware: the client's `project.country` (ISO 3166-1 alpha-2) selects the applicable national AI/data-protection law from a bundled registry (`ati_audit/jurisdictions.yaml`). Currently seeded with KZ, EU, US, GB, RU. For countries not in the registry the LLM assesses against general national law knowledge and flags the rationale as a general assessment. The registry is extensible via community PRs.
 
 ## CLI Reference
 
