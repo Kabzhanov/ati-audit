@@ -8,6 +8,29 @@ def test_site_detects_ai_disclosure():
     ev = fetch_site("http://x", _get=lambda u: html)
     assert ev["has_ai_disclosure"] is True
     assert ev["has_privacy_policy"] is True
+    assert "html" not in ev
+
+
+def test_site_no_html_in_result():
+    """fetch_site must not return the raw html key."""
+    ev = fetch_site("https://x", _get=lambda u: "some html content")
+    assert "html" not in ev
+
+
+def test_site_rejects_non_http_scheme():
+    """Non-http/https URLs must return all-False without fetching."""
+    called = []
+    ev = fetch_site("ftp://evil.example.com", _get=lambda u: called.append(u) or "")
+    assert ev == {"has_ai_disclosure": False, "has_consent": False, "has_privacy_policy": False}
+    assert called == []
+
+
+def test_site_rejects_empty_url():
+    """Empty URL must return all-False without fetching."""
+    called = []
+    ev = fetch_site("", _get=lambda u: called.append(u) or "")
+    assert ev == {"has_ai_disclosure": False, "has_consent": False, "has_privacy_policy": False}
+    assert called == []
 
 
 def test_docs_scan_finds_policy(tmp_path):

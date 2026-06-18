@@ -13,11 +13,12 @@ _KEYS = {
 def scan_docs(docs_path: str) -> dict:
     files = {}
     if docs_path and os.path.isdir(docs_path):
-        for root, _, names in os.walk(docs_path):
+        for root, _, names in os.walk(docs_path, followlinks=False):
             for n in names:
                 if n.lower().endswith((".md", ".txt", ".rst")):
                     try:
-                        files[n] = open(os.path.join(root, n), encoding="utf-8").read()
+                        with open(os.path.join(root, n), encoding="utf-8") as f:
+                            files[n] = f.read()
                     except OSError:
                         pass
     blob = " ".join((k + " " + v) for k, v in files.items()).lower()
