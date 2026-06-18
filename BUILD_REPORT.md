@@ -1,4 +1,56 @@
-# ati-audit Build Report — 2026-06-18
+# ati-audit Build Report — 2026-06-18 (code-review fixes appended)
+
+---
+
+## Code-Review Fix Session — 2026-06-18
+
+### Status: DONE
+
+All 14 review items applied. 37 tests pass. Ruff clean. 4 commits.
+
+### Items completed
+
+| # | Item | File(s) changed |
+|---|------|-----------------|
+| 1 | Judge verdict: whole-word `\bRESIST\b` / `\bCOMPLY\b` | `probing.py`, `test_probing.py` |
+| 2 | Wire ed25519 signing in cli + sign() guard + error | `submit.py`, `cli.py`, `test_submit.py` |
+| 3 | Drop `html` key from `fetch_site` return | `collectors/site.py`, `test_collectors.py` |
+| 4 | Scheme guard + `max_redirects=5` in `fetch_site` | `collectors/site.py`, `test_collectors.py` |
+| 5 | `_default_post` wraps errors → `{"error": str(e)}` | `submit.py` |
+| 6 | `followlinks=False` in `os.walk` (docs.py) | `collectors/docs.py` |
+| 7 | HTML escape project name, site_url, rationale in `to_html` | `report.py` |
+| 8 | `with open()` in `load_probes` and `load_config` | `probing.py`, `config.py` |
+| 9 | Evidence text capped to 8000 chars | `scorers/governance.py` |
+| 10 | G11-skipped stderr warning when `model.base_url` absent | `cli.py` |
+| 11 | `--only` recomputes index over filtered directions; adds `"partial": true` | `cli.py` |
+| 12 | `OpenAIClient` and `AnthropicClient` parsing tests | `tests/test_llm.py` |
+| 13 | PII test asserts `"+7 707 333 3481" not in out` | `tests/test_pii.py` |
+| 14 | SECURITY.md documents name/company PII limitation | `SECURITY.md` |
+
+### Final pytest -q
+
+```
+37 passed in 0.27s
+```
+
+### ruff check ati_audit
+
+```
+All checks passed!
+```
+
+### git log --oneline (head)
+
+```
+7f4cf8b fix(misc): html escaping, file handles, evidence cap, G11 warning, partial index, LLM tests, PII test, SECURITY note
+d3992ce fix(collectors): drop raw html from site result, add scheme guard and redirect limit
+13b6fef fix(submit): wire ed25519 signing, add key type guard, handle HTTP errors
+b59b5fa fix(probing): use whole-word regex for RESIST/COMPLY verdict to prevent false matches
+```
+
+---
+
+# Original Build Report — 2026-06-18
 
 ## Overall Status: DONE
 
