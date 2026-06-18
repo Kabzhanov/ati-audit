@@ -1,0 +1,33 @@
+# ati-audit.yaml — Example configuration for AI Trust Index audit
+# Run: ati-audit run --config ati-audit.yaml --self --out report.html
+
+# Project profile
+project:
+  name: "My IT Project"          # Display name
+  has_ai: true                   # true = AI-specific directions (G8-G11) are scored
+                                 # false = only universal directions (G1-G7) scored
+                                 # omit = auto-detected from model.base_url
+  site_url: "https://example.com"  # Public site to scan for AI disclosure, consent, privacy policy
+
+# Evidence sources (local paths, nothing is uploaded)
+sources:
+  repo_path: ""                  # Path to source code repo (future: code scan)
+  docs_path: "./docs"            # Path to documentation directory (scanned for .md/.txt/.rst)
+  credentials_path: "./creds"   # Path to team credential documents (PDFs, text files) for G5
+
+# Audited model connector (G11 red-team; only needed if has_ai: true)
+model:
+  connector: "openai"            # openai | anthropic | http
+  base_url: "http://localhost:11434/v1"  # OpenAI-compatible base URL (Ollama, vLLM, etc.)
+  model: "llama3"                # Model name to test
+  api_key_env: "MODEL_API_KEY"   # Env var holding the API key (never written to disk)
+
+# LLM judge/analyzer (bring-your-own-key)
+llm:
+  provider: "openai"             # openai | anthropic | http
+  model: "gpt-4o-mini"           # Model to use for scoring and judging
+  api_key_env: "OPENAI_API_KEY"  # Env var holding the API key
+
+# Submit settings (optional; only used with --submit flag)
+submit:
+  registry_url: "https://bizdnai.com/api/ati/submit"  # ATI registry endpoint
