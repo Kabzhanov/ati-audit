@@ -51,20 +51,13 @@ RUBRICS = {
 
 
 def _required(code: str, site_ev: dict, docs_ev: dict) -> bool:
-    """Return True if the required artifact is present (or if no docs were scanned = unknown).
+    """Return True ONLY if the required artifact is actually present in collected evidence.
 
-    Floor only applies when docs were actively scanned and the artifact was NOT found.
-    If no docs path was configured (empty files dict, no scanning), benefit of doubt → True.
+    Honest-defaults principle (spec §4): absence of evidence is NOT benefit of the doubt — a
+    missing artifact floors the score. This is the deterministic guard against an ungrounded
+    high LLM score, regardless of whether docs were simply not provided or scanned-and-absent.
     """
     files = docs_ev.get("files", {})
-    # If no docs were scanned at all, we can't confirm absence → don't floor
-    if not files:
-        # Site-based checks can still apply
-        if code == "G9":
-            return site_ev.get("has_consent", False) or site_ev.get("has_ai_disclosure", False)
-        if code == "G10":
-            return False  # ISO/AIMS requires explicit doc evidence
-        return True  # no docs scanned → unknown, don't floor
     found = docs_ev.get("found", {})
     if code == "G1":
         return found.get("registry", False)

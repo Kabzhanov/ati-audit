@@ -4,11 +4,16 @@ from ati_audit.config import AuditConfig, Project, Sources, ModelCfg, LLMCfg, Su
 
 
 def test_run_audit_non_ai_excludes_ai_dirs(tmp_path, fake_llm, fake_connector):
+    # Provide governance evidence so universal directions are grounded (not floored):
+    # the honest-defaults floor only lifts when the required artifact is actually present.
+    (tmp_path / "GOV.md").write_text(
+        "systems registry, risk register, AI policy, governance process, compliance roadmap"
+    )
     cfg = AuditConfig(
         Project("Acme", False, ""), Sources(docs_path=str(tmp_path)),
         ModelCfg(), LLMCfg(), SubmitCfg()
     )
-    # 5 governance LLM calls (G1,G2,G3,G4,G7) + G5 => supply enough JSON responses
+    # 5 governance LLM calls (G1,G2,G3,G4,G7); G5 has no credentials → floored without an LLM call.
     resp = ['{"score": 7, "rationale": "x", "evidence": []}'] * 6
     rep = run_audit(cfg, llm=fake_llm(resp), connector=fake_connector([]), reviews=[])
     codes = {d["code"]: d for d in rep["directions"]}
