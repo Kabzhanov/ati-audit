@@ -47,7 +47,8 @@ class AuditConfig:
 
 
 def load_config(path: str) -> AuditConfig:
-    raw = yaml.safe_load(open(path, encoding="utf-8")) or {}
+    with open(path, encoding="utf-8") as f:
+        raw = yaml.safe_load(f) or {}
     proj_raw = raw.get("project", {})
     model = ModelCfg(**raw.get("model", {}))
     project = Project(

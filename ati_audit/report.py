@@ -1,4 +1,5 @@
 # SPDX-License-Identifier: Apache-2.0
+import html as _html
 from datetime import datetime, timezone
 from ati_audit.aggregate import compute_index
 
@@ -53,14 +54,15 @@ def to_html(report: dict) -> str:
             f"<td>{d['name']}</td>"
             f"<td>{score_str}</td>"
             f"<td>{active_str}{applicable_str}</td>"
-            f"<td>{d.get('rationale', '')[:200]}</td>"
+            f"<td>{_html.escape(d.get('rationale', '')[:200])}</td>"
             f"</tr>\n"
         )
+    safe_name = _html.escape(project.get("name", ""))
     return f"""<!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>ATI Audit Report — {project.get('name', '')}</title>
+<title>ATI Audit Report — {safe_name}</title>
 <style>
   body {{ font-family: sans-serif; background: #1a1a2e; color: #e0e0e0; margin: 2rem; }}
   h1 {{ color: #a78bfa; }}
@@ -72,8 +74,8 @@ def to_html(report: dict) -> str:
 </style>
 </head>
 <body>
-<h1>AI Trust Index Audit — {project.get('name', '')}</h1>
-<p>Site: {project.get('site_url', '')}</p>
+<h1>AI Trust Index Audit — {safe_name}</h1>
+<p>Site: {_html.escape(project.get('site_url', ''))}</p>
 <p>Generated: {report.get('generated_at', '')}</p>
 <div class="index">{index} / 10</div>
 <table>

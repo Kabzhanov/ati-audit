@@ -92,7 +92,8 @@ def _evidence_text(code: str, site_ev: dict, docs_ev: dict) -> str:
         parts.append("[site] consent language detected")
     if site_ev.get("has_privacy_policy"):
         parts.append("[site] privacy policy link detected")
-    return "\n\n".join(parts) or "(no evidence collected)"
+    text = "\n\n".join(parts) or "(no evidence collected)"
+    return text[:8000]
 
 
 _AI_CODES = {"G8", "G9", "G10"}

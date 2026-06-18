@@ -30,6 +30,18 @@ probes against systems you do not own or have explicit permission to test may vi
 The probes are tagged with direction codes and law references (RK Law on AI, ISO 42001) to support
 regulatory compliance frameworks. They are designed to be defensive, not offensive.
 
+## PII Redaction Limitations
+
+Rationale redaction (`pii.redact()`) currently covers **email addresses and phone numbers** only.
+Person names and company names that appear in scanned documents may persist in the
+`rationale_redacted` field of the submission payload.
+
+**Users should review the generated report before submitting a verified score** to ensure no
+sensitive personal or organisational names are included in the rationale fields.
+
+NER-based name redaction is not implemented; this limitation is documented here rather than
+papered over.
+
 ## Reporting Vulnerabilities
 
 If you discover a security vulnerability in `ati-audit`, please report it responsibly:
