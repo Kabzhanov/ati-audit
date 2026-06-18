@@ -14,8 +14,9 @@ from ati_audit.scorers.team import score_team
 from ati_audit.scorers.reviews import score_reviews
 from ati_audit.scorers.redteam import score_redteam
 from ati_audit.report import build_report, to_html
-from ati_audit.submit import build_payload, submit
+from ati_audit.submit import build_payload, sign, submit
 from ati_audit.probing import load_probes
+from ati_audit.aggregate import compute_index
 
 _EXAMPLES_DIR = os.path.join(os.path.dirname(__file__), "..", "examples")
 _EXAMPLE_CONFIG = os.path.join(_EXAMPLES_DIR, "ati-audit.yaml")
@@ -31,7 +32,7 @@ def run_audit(cfg: AuditConfig, *, llm=None, connector=None, reviews=None) -> di
         connector = make_connector(cfg.model)
 
     site_ev = fetch_site(cfg.project.site_url) if cfg.project.site_url else {
-        "html": "", "has_ai_disclosure": False, "has_consent": False, "has_privacy_policy": False,
+        "has_ai_disclosure": False, "has_consent": False, "has_privacy_policy": False,
     }
     docs_ev = scan_docs(cfg.sources.docs_path) if cfg.sources.docs_path else {
         "files": {}, "found": {k: False for k in ("policy", "registry", "risk", "process", "roadmap")},
@@ -47,6 +48,11 @@ def run_audit(cfg: AuditConfig, *, llm=None, connector=None, reviews=None) -> di
         results.append(score_redteam(cfg, connector, llm))
     else:
         from ati_audit.models import ScoreResult
+        if cfg.project.has_ai and not cfg.model.base_url:
+            print(
+                "Warning: G11 behavioral testing skipped — no model endpoint configured (model.base_url).",
+                file=sys.stderr,
+            )
         results.append(
             ScoreResult("G11", None, False, cfg.project.has_ai,
                         "not applicable (no AI in project)" if not cfg.project.has_ai
@@ -75,14 +81,24 @@ def _cmd_run(args):
 
     if only:
         rep["directions"] = [d for d in rep["directions"] if d["code"] == only]
+        from ati_audit.models import ScoreResult
+        # Recompute index over filtered directions only
+        filtered_results = [
+            ScoreResult(d["code"], d["score"], d["active"], d["applicable"], "", [])
+            for d in rep["directions"]
+        ]
+        rep["index"] = compute_index(filtered_results)
+        rep["partial"] = True
 
     out_path = args.out
     if out_path and out_path.endswith(".html"):
         content = to_html(rep)
-        open(out_path, "w", encoding="utf-8").write(content)
+        with open(out_path, "w", encoding="utf-8") as f:
+            f.write(content)
         print(f"HTML report written to {out_path}")
     elif out_path:
-        open(out_path, "w", encoding="utf-8").write(json.dumps(rep, indent=2))
+        with open(out_path, "w", encoding="utf-8") as f:
+            f.write(json.dumps(rep, indent=2))
         print(f"JSON report written to {out_path}")
     else:
         print(json.dumps(rep, indent=2))
@@ -92,6 +108,13 @@ def _cmd_run(args):
             print("--submit requires --registry URL", file=sys.stderr)
             return 1
         payload = build_payload(rep)
+        key_path = os.environ.get("ATI_SUBMIT_SIGNING_KEY", "")
+        if key_path and os.path.exists(key_path):
+            with open(key_path, "rb") as kf:
+                key_pem = kf.read()
+            payload["signature"] = sign(payload, key_pem)
+        else:
+            print("Note: submission is unsigned (ATI_SUBMIT_SIGNING_KEY not set).", file=sys.stderr)
         result = submit(payload, args.registry)
         print("Submit result:", result)
 

@@ -29,13 +29,20 @@ def build_payload(report: dict) -> dict:
 def sign(payload: dict, key_pem: bytes) -> str:
     import json
     from cryptography.hazmat.primitives.serialization import load_pem_private_key
+    from cryptography.hazmat.primitives.asymmetric.ed25519 import Ed25519PrivateKey
 
     key = load_pem_private_key(key_pem, password=None)
-    return key.sign(json.dumps(payload, sort_keys=True).encode()).hex()
+    if not isinstance(key, Ed25519PrivateKey):
+        raise ValueError("signing key must be ed25519")
+    signing_input = {k: v for k, v in payload.items() if k != "signature"}
+    return key.sign(json.dumps(signing_input, sort_keys=True).encode()).hex()
 
 
 def _default_post(url, json_data):
-    return httpx.post(url, json=json_data, timeout=60).json()
+    try:
+        return httpx.post(url, json=json_data, timeout=60).json()
+    except (httpx.HTTPError, ValueError) as e:
+        return {"error": str(e)}
 
 
 def submit(payload: dict, registry_url: str, _post=_default_post) -> dict:
