@@ -1,14 +1,70 @@
-# ati-audit
+# 🛡️ ati-audit
 
-Open-source Python CLI that computes the **[AI Trust Index](https://bizdnai.com/index/)** (v2 methodology, G1–G11) for an IT/AI project — entirely on the client side. Nothing but scores leaves your machine.
+**The open auditor for the AI Trust Index — one honest 0–10 number for how responsibly an IT/AI project is built.**
 
-## What is AI Trust Index?
+[![License: Apache-2.0](https://img.shields.io/badge/License-Apache--2.0-blue.svg)](LICENSE)
+[![Python 3.11+](https://img.shields.io/badge/Python-3.11%2B-blue?logo=python&logoColor=white)](https://www.python.org/)
+[![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](https://github.com/Kabzhanov/ati-audit/pulls)
+[![Standard](https://img.shields.io/badge/ATI_Standard-bizdnai.com%2Findex%2F-blueviolet)](https://bizdnai.com/index/)
 
-AI Trust Index (ATI) is a standard for measuring trustworthiness of IT and AI projects across 11 governance directions (G1–G11). It covers systems registry, risk analysis, maturity, compliance, team credentials, customer ratings, governance processes, AI policy, national AI-law compliance, ISO 42001, and behavioral robustness (red-team testing).
+---
 
-See full methodology: [bizdnai.com/index/](https://bizdnai.com/index/)
+## 📊 What is the AI Trust Index?
 
-## Install
+The **AI Trust Index (ATI)** is an open standard that distills responsible IT and AI governance into a single, comparable **0–10 score** across 11 structured directions (G1–G11). It is universal: every IT project can be audited on the governance directions (G1–G7), while AI-specific directions (G8–G11) only apply — and only count — when the project actually uses AI.
+
+The standard is created by **Rashid Kabzhanov**. Full methodology and public registry: [bizdnai.com/index/](https://bizdnai.com/index/)
+
+---
+
+## ✨ Key Features
+
+- **Universal IT + AI scope** — meaningful score for any software project; AI directions activate only when relevant
+- **11 structured directions G1–G11** — from systems registry and risk analysis through behavioral red-teaming
+- **Jurisdiction-aware national-law compliance (G9)** — selects the applicable law by `project.country`; extensible registry, contributions welcome
+- **Behavioral red-team of the live model (G11)** — actually probes the running model endpoint, not just reads the system prompt
+- **Privacy-first** — runs entirely on your machine; `--submit` sends only computed scores + optional signature, never raw documents or PII
+- **Bring-your-own-key LLM** — any OpenAI-compatible endpoint (cloud or local Ollama/vLLM) as the judge
+- **Honest defaults** — no evidence found → low score; nothing is assumed or fabricated
+
+---
+
+## 📐 Methodology (v2)
+
+### Universal directions — always scored
+
+| Code | Direction | Notes |
+|------|-----------|-------|
+| G1 | Systems registry | Documents the project's systems and components |
+| G2 | Risk analysis | Identified and documented risks |
+| G3 | Maturity assessment | Process and product maturity evidence |
+| G4 | Compliance roadmap | Planned path to regulatory conformity |
+| G5 | IT team verification | Team credentials and competency evidence |
+| G6 | Customer ratings | Verified user feedback (inactive if < 3 reviews) |
+| G7 | Governance processes | Policies, controls, oversight (hinge — always applies) |
+
+### AI-specific directions — scored only when `has_ai: true`
+
+| Code | Direction | Notes |
+|------|-----------|-------|
+| G8 | AI usage policy | Documented policy for AI system use |
+| G9 | National AI-law compliance | Jurisdiction-aware; driven by `project.country` |
+| G10 | ISO/IEC 42001 | AI management system alignment |
+| G11 | Behavioral robustness | Live red-team probing of the model endpoint |
+
+**Index = mean of all active and applicable directions.**
+
+---
+
+## 🚀 Install
+
+Not yet on PyPI — install from source:
+
+```bash
+pip install git+https://github.com/Kabzhanov/ati-audit
+```
+
+Once published to PyPI you will be able to use:
 
 ```bash
 pip install ati-audit
@@ -16,85 +72,127 @@ pip install ati-audit
 pipx install ati-audit
 ```
 
-## Quick Start
+Requires **Python 3.11+**.
+
+---
+
+## ⚡ Quickstart
 
 ```bash
-# 1. Generate config
+# 1. Generate a config file
 ati-audit init
 
-# 2. Edit ati-audit.yaml with your project details and LLM API key env var
-
-# 3. Run local audit (nothing leaves your machine)
+# 2. Edit ati-audit.yaml with your project details and set your LLM API key
 export OPENAI_API_KEY=sk-...
+
+# 3. Run a local audit — nothing leaves your machine
 ati-audit run --self --out report.html
 
-# 4. View report.html in your browser
+# 4. Open report.html in your browser
 ```
 
-## Methodology v2 — Directions
-
-| Code | Direction | Applicability |
-|------|-----------|---------------|
-| G1 | Systems registry | Always |
-| G2 | Risk analysis | Always |
-| G3 | Maturity assessment | Always |
-| G4 | Compliance roadmap | Always |
-| G5 | IT team verification | Always |
-| G6 | Customer ratings | Always (inactive if <3 reviews) |
-| G7 | Governance processes | Always |
-| G8 | AI usage policy | Only when `has_ai: true` |
-| G9 | National AI-law compliance | Only when `has_ai: true` |
-| G10 | ISO/IEC 42001 | Only when `has_ai: true` |
-| G11 | Behavioral robustness | Only when `has_ai: true` |
-
-**Index = mean of active & applicable directions.**
-
-### Jurisdiction (G9)
-
-G9 is jurisdiction-aware: the client's `project.country` (ISO 3166-1 alpha-2) selects the applicable national AI/data-protection law from a bundled registry (`ati_audit/jurisdictions.yaml`). Currently seeded with KZ, EU, US, GB, RU. For countries not in the registry the LLM assesses against general national law knowledge and flags the rationale as a general assessment. The registry is extensible via community PRs.
-
-## CLI Reference
+### Audit a single direction
 
 ```bash
-ati-audit init                          # Generate ati-audit.yaml
-ati-audit run                           # Run full audit (reads ati-audit.yaml)
-ati-audit run --only G11                # Run only one direction
-ati-audit run --out report.html         # Save HTML report
-ati-audit run --submit --registry URL   # Send scores to registry (no raw data)
-ati-audit probes list                   # List G11 red-team probes
+ati-audit run --only G11          # Run behavioral red-team only
+ati-audit probes list             # List all G11 red-team probes
 ```
 
-## Configuration (`ati-audit.yaml`)
+### Annotated `ati-audit.yaml`
 
 ```yaml
 project:
-  name: "My Project"
-  has_ai: true          # auto-detected from model.base_url if omitted
-  site_url: "https://example.com"
+  name: "My IT Project"          # Display name
+  has_ai: true                   # true → G8–G11 scored; false → G1–G7 only
+  site_url: "https://example.com" # Scanned for AI disclosure, consent, privacy policy
+  country: KZ                    # ISO 3166-1 alpha-2 — drives G9 jurisdiction check
 
 sources:
-  docs_path: "./docs"               # .md/.txt docs scanned for evidence
-  credentials_path: "./creds"       # team credential documents for G5
+  docs_path: "./docs"            # .md/.txt/.rst docs scanned for evidence
+  credentials_path: "./creds"    # Team credential documents (PDFs, text) for G5
 
-model:  # the AUDITED model (for G11 red-team)
-  connector: openai                 # openai | anthropic | http
-  base_url: "http://localhost:11434/v1"
-  model: llama3
-  api_key_env: MODEL_API_KEY
+model:                           # The AUDITED model (used for G11 red-team)
+  connector: "openai"            # openai | anthropic | http
+  base_url: "http://localhost:11434/v1"  # OpenAI-compatible endpoint (Ollama, vLLM, etc.)
+  model: "llama3"
+  api_key_env: "MODEL_API_KEY"   # API key read from env — never written to disk
 
-llm:   # the JUDGE/ANALYZER (bring-your-own-key)
-  provider: openai
-  model: gpt-4o-mini
-  api_key_env: OPENAI_API_KEY
-
-submit:
-  registry_url: "https://bizdnai.com/api/ati/submit"
+llm:                             # The JUDGE/ANALYZER (bring-your-own-key)
+  provider: "openai"             # openai | anthropic | http
+  model: "gpt-4o-mini"
+  api_key_env: "OPENAI_API_KEY"
 ```
 
-## Privacy
+---
 
-Raw documents, source code, model responses, and PII **never leave your machine**. See [SECURITY.md](SECURITY.md) for the full privacy invariant.
+## 🌍 Jurisdictions (G9)
 
-## License
+The `project.country` field (ISO 3166-1 alpha-2) selects the applicable national AI and data-protection law for the G9 compliance check.
 
-Apache-2.0. See [LICENSE](LICENSE).
+**Seeded countries:**
+
+| Code | Jurisdiction | Law / Framework |
+|------|-------------|-----------------|
+| KZ | Kazakhstan | Law No. 230-VIII on Artificial Intelligence (in force 2026-01-16) |
+| EU | European Union | EU AI Act (Regulation (EU) 2024/1689) |
+| US | United States | NIST AI Risk Management Framework + sectoral rules |
+| GB | United Kingdom | UK pro-innovation AI principles + UK GDPR / DPA 2018 |
+| RU | Russia | Federal data law 152-FZ + AI Code of Ethics |
+
+**Unknown country** → the LLM assesses against general national law knowledge and flags the rationale as a general assessment.
+
+**Contributions welcome:** add your country to [`ati_audit/jurisdictions.yaml`](ati_audit/jurisdictions.yaml) and open a PR.
+
+---
+
+## 🔒 Privacy & Security
+
+`ati-audit` is built on a strict privacy invariant: **raw documents, source code, model responses, and PII never leave your machine.**
+
+When `--submit` is used, the payload contains only:
+- The computed index score
+- Per-direction results (scores, active/applicable flags, redacted rationale snippets)
+- Project name and public site URL
+- An optional cryptographic signature
+
+LLM API keys are read from environment variables and are never written to disk or included in any payload.
+
+The G11 probe suite is published for **transparency and authorized safety testing only** — intended for organizations auditing their own systems. Using probes against systems you do not own or have explicit permission to test may violate applicable laws.
+
+See [`SECURITY.md`](SECURITY.md) for the full privacy invariant, PII redaction scope, and vulnerability reporting instructions.
+
+---
+
+## 🆓 Free vs. Verified
+
+| | Self-audit (`--submit` not used) | Verified badge |
+|---|---|---|
+| Runs locally | Yes | Yes |
+| Cost | Free | Hosted service |
+| Result | Local HTML/JSON report | Entry in public ATI registry |
+| Monitoring | No | Yes |
+
+The self-audit (`ati-audit run --self`) is **free, open-source, and runs entirely on your machine**. Verified badges, public registry listings, and continuous monitoring are a hosted service at [bizdnai.com/index/](https://bizdnai.com/index/) and are not part of this repository.
+
+---
+
+## 🤝 Contributing
+
+PRs are welcome, especially for:
+- **New jurisdictions** — add an entry to [`ati_audit/jurisdictions.yaml`](ati_audit/jurisdictions.yaml)
+- **New G11 probes** — extend [`ati_audit/probes/core.yaml`](ati_audit/probes/core.yaml)
+
+Before submitting, run:
+
+```bash
+pytest -q
+ruff check ati_audit
+```
+
+---
+
+## 📄 License & Author
+
+Licensed under the **Apache-2.0** License. See [`LICENSE`](LICENSE).
+
+AI Trust Index standard by **Rashid Kabzhanov** — [bizdnai.com/index/](https://bizdnai.com/index/)
