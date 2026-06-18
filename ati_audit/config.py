@@ -8,6 +8,7 @@ class Project:
     name: str = ""
     has_ai: bool = False
     site_url: str = ""
+    country: str = ""
 
 
 @dataclass
@@ -52,7 +53,7 @@ def load_config(path: str) -> AuditConfig:
     proj_raw = raw.get("project", {})
     model = ModelCfg(**raw.get("model", {}))
     project = Project(
-        **{k: proj_raw[k] for k in ("name", "site_url") if k in proj_raw},
+        **{k: proj_raw[k] for k in ("name", "site_url", "country") if k in proj_raw},
         has_ai=proj_raw.get("has_ai", bool(model.base_url)),
     )
     return AuditConfig(

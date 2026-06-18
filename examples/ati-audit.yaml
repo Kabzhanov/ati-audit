@@ -8,6 +8,9 @@ project:
                                  # false = only universal directions (G1-G7) scored
                                  # omit = auto-detected from model.base_url
   site_url: "https://example.com"  # Public site to scan for AI disclosure, consent, privacy policy
+  country: KZ                    # ISO 3166-1 alpha-2 code of the client's jurisdiction
+                                 # Drives G9 (National AI-law compliance): KZ, EU, US, GB, RU supported
+                                 # Unknown/missing → LLM assesses against general national law knowledge
 
 # Evidence sources (local paths, nothing is uploaded)
 sources:

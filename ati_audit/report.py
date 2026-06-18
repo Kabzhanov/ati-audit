@@ -12,7 +12,7 @@ NAMES = {
     "G6": "Customer ratings",
     "G7": "Governance processes",
     "G8": "AI usage policy",
-    "G9": "RK Law on AI",
+    "G9": "National AI-law compliance",
     "G10": "ISO/IEC 42001",
     "G11": "Behavioral robustness",
 }

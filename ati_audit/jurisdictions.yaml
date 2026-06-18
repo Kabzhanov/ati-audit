@@ -1,0 +1,44 @@
+# SPDX-License-Identifier: Apache-2.0
+# Jurisdiction registry for G9 (National AI-law compliance).
+# Add new entries via PR — country code must be ISO 3166-1 alpha-2.
+jurisdictions:
+  KZ:
+    name: Kazakhstan
+    law: "Law of the Republic of Kazakhstan No. 230-VIII on Artificial Intelligence"
+    ref: "230-VIII ZRK (in force 2026-01-16)"
+    requirements:
+      - "Disclose to users that they are interacting with an AI system"
+      - "Obtain user consent for AI processing of their data"
+      - "Ensure human oversight of automated decisions"
+  EU:
+    name: European Union
+    law: "EU AI Act (Regulation (EU) 2024/1689)"
+    ref: "EU AI Act 2024/1689"
+    requirements:
+      - "Risk-tier classification of AI systems"
+      - "Transparency obligations for limited-risk AI (disclose AI interaction)"
+      - "No prohibited AI practices (e.g. social scoring, manipulative AI)"
+  US:
+    name: United States
+    law: "NIST AI Risk Management Framework + sectoral rules (no single federal AI law)"
+    ref: "NIST AI RMF 1.0"
+    requirements:
+      - "Document AI risk management aligned to NIST AI RMF"
+      - "Sector-specific compliance where applicable (e.g. FTC, HIPAA, FCRA)"
+      - "Transparency and bias mitigation measures"
+  GB:
+    name: United Kingdom
+    law: "UK pro-innovation AI regulation (principles-based) + UK GDPR/DPA 2018"
+    ref: "UK AI principles + DPA 2018"
+    requirements:
+      - "Apply the UK AI regulatory principles (safety, transparency, fairness, accountability, contestability)"
+      - "Comply with UK GDPR for personal data in AI"
+      - "Disclose automated decision-making affecting individuals"
+  RU:
+    name: Russia
+    law: "Federal data law 152-FZ + AI Code of Ethics"
+    ref: "152-FZ + AI Ethics Code"
+    requirements:
+      - "Comply with personal data law 152-FZ for AI data processing"
+      - "Adhere to the national AI Code of Ethics"
+      - "Disclose AI use and ensure human oversight"

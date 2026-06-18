@@ -1,6 +1,7 @@
 # SPDX-License-Identifier: Apache-2.0
 from ati_audit.models import ScoreResult
 from ati_audit.scorers.base import grounded_score
+from ati_audit.jurisdictions import load_jurisdictions
 
 RUBRICS = {
     "G1": (
@@ -35,12 +36,6 @@ RUBRICS = {
         "Score 1-10: 1=no policy, 5=draft/partial policy, "
         "10=comprehensive published policy with versioning and enforcement."
     ),
-    "G9": (
-        "G9 RK Law on AI Compliance: Does the project demonstrate compliance with Kazakhstan's Law "
-        "on AI and related regulations (consent, transparency, human oversight)? "
-        "Score 1-10: 1=no evidence of compliance, 5=partial/informal, "
-        "10=documented compliance program with evidence of consent and disclosures."
-    ),
     "G10": (
         "G10 ISO/IEC 42001 (AIMS): Does the project implement or work toward ISO/IEC 42001 "
         "AI Management System standard? "
@@ -48,6 +43,37 @@ RUBRICS = {
         "10=implemented AIMS with documented policies, risks, and objectives."
     ),
 }
+
+
+def _g9_rubric(country: str, jurisdictions: dict) -> tuple[str, str]:
+    """Return (rubric_text, jurisdiction_label) for G9, based on the client's country.
+
+    If the country is found in the registry, reference its law and requirements.
+    If not found (or empty), instruct the LLM to use general knowledge and flag it.
+    """
+    code = (country or "").upper().strip()
+    if code and code in jurisdictions:
+        j = jurisdictions[code]
+        reqs = "\n".join(f"  - {r}" for r in j.get("requirements", []))
+        rubric = (
+            f"G9 National AI-law compliance: Does the project comply with {j['law']} ({j['ref']})? "
+            f"Required compliance areas:\n{reqs}\n"
+            "Score 1-10: 1=no evidence of compliance, 5=partial/informal, "
+            "10=documented compliance program with evidence for all requirements."
+        )
+        label = f"{j['name']}: {j['ref']}"
+    else:
+        jurisdiction_desc = f"the national AI and data-protection laws of {country}" if country \
+            else "the applicable national AI and data-protection laws of the client jurisdiction"
+        rubric = (
+            f"G9 National AI-law compliance: Does the project comply with {jurisdiction_desc}? "
+            "Use your general knowledge of national AI/data-protection regulations. "
+            "Score 1-10: 1=no evidence of compliance, 5=partial/informal, "
+            "10=documented compliance program with evidence of consent and disclosures. "
+            "NOTE: This is a general assessment — the jurisdiction was not found in the registry."
+        )
+        label = "general assessment (jurisdiction not in registry)"
+    return rubric, label
 
 
 def _required(code: str, site_ev: dict, docs_ev: dict) -> bool:
@@ -101,6 +127,8 @@ _GOV_CODES = ["G1", "G2", "G3", "G4", "G7", "G8", "G9", "G10"]
 
 
 def score_governance(cfg, site_ev: dict, docs_ev: dict, llm) -> list[ScoreResult]:
+    jurisdictions = load_jurisdictions()
+    country = getattr(cfg.project, "country", "") or ""
     results = []
     for code in _GOV_CODES:
         applicable = cfg.project.has_ai if code in _AI_CODES else True
@@ -114,10 +142,22 @@ def score_governance(cfg, site_ev: dict, docs_ev: dict, llm) -> list[ScoreResult
             continue
         required = _required(code, site_ev, docs_ev)
         evidence_text = _evidence_text(code, site_ev, docs_ev)
-        results.append(
-            grounded_score(
+        if code == "G9":
+            rubric, jurisdiction_label = _g9_rubric(country, jurisdictions)
+            result = grounded_score(
+                code, llm, evidence_text, rubric,
+                required_present=required, applicable=True,
+            )
+            # Prepend jurisdiction label to rationale so report shows which law was used
+            result = ScoreResult(
+                result.code, result.score, result.active, result.applicable,
+                f"[{jurisdiction_label}] {result.rationale}",
+                result.evidence,
+            )
+        else:
+            result = grounded_score(
                 code, llm, evidence_text, RUBRICS[code],
                 required_present=required, applicable=True,
             )
-        )
+        results.append(result)
     return results
