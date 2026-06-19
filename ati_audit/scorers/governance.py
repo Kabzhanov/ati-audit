@@ -86,7 +86,13 @@ def _required(code: str, site_ev: dict, docs_ev: dict) -> bool:
     files = docs_ev.get("files", {})
     found = docs_ev.get("found", {})
     if code == "G1":
-        return found.get("registry", False)
+        # A systems-registry doc OR a verified corporate contact email on the public site
+        # counts as a positive identity/registry signal for G1.
+        has_verified_contact = (
+            site_ev.get("has_mx_verified_email", False)
+            or site_ev.get("has_corporate_email", False)
+        )
+        return found.get("registry", False) or has_verified_contact
     if code == "G2":
         return found.get("risk", False)
     if code == "G3":
@@ -118,6 +124,19 @@ def _evidence_text(code: str, site_ev: dict, docs_ev: dict) -> str:
         parts.append("[site] consent language detected")
     if site_ev.get("has_privacy_policy"):
         parts.append("[site] privacy policy link detected")
+    # Official-contact email trust signal (G1 identity)
+    if site_ev.get("has_mx_verified_email"):
+        verified = site_ev.get("mx_verified_emails", [])
+        parts.append(
+            "[site] verified official contact email(s) on corporate domain with valid MX: "
+            + ", ".join(verified[:3])
+        )
+    elif site_ev.get("has_corporate_email"):
+        corporate = site_ev.get("corporate_emails", [])
+        parts.append(
+            "[site] corporate-domain email(s) found on site (MX not checked): "
+            + ", ".join(corporate[:3])
+        )
     text = "\n\n".join(parts) or "(no evidence collected)"
     return text[:8000]
 

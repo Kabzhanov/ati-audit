@@ -35,7 +35,7 @@ The standard is created by **Rashid Kabzhanov**. Full methodology and public reg
 
 | Code | Direction | Notes |
 |------|-----------|-------|
-| G1 | Systems registry | Documents the project's systems and components |
+| G1 | Systems registry | Documents the project's systems and components; a verified official contact email on a corporate domain (non-free provider, valid MX) is also counted as a positive identity signal |
 | G2 | Risk analysis | Identified and documented risks |
 | G3 | Maturity assessment | Process and product maturity evidence |
 | G4 | Compliance roadmap | Planned path to regulatory conformity |
