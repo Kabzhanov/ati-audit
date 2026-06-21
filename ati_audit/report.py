@@ -18,19 +18,30 @@ NAMES = {
 }
 
 
+def _gate_order(code: str) -> int:
+    """Return a sort key for gate codes G1–G11 so the report follows canonical G1→G11 order."""
+    try:
+        return int(code[1:])
+    except (ValueError, IndexError):
+        return 999
+
+
 def build_report(cfg, results) -> dict:
-    directions = [
-        {
-            "code": r.code,
-            "name": NAMES.get(r.code, r.code),
-            "score": r.score,
-            "active": r.active,
-            "applicable": r.applicable,
-            "rationale": r.rationale,
-            "evidence_categories": sorted({e.category for e in r.evidence}),
-        }
-        for r in results
-    ]
+    directions = sorted(
+        [
+            {
+                "code": r.code,
+                "name": NAMES.get(r.code, r.code),
+                "score": r.score,
+                "active": r.active,
+                "applicable": r.applicable,
+                "rationale": r.rationale,
+                "evidence_categories": sorted({e.category for e in r.evidence}),
+            }
+            for r in results
+        ],
+        key=lambda d: _gate_order(d["code"]),
+    )
     return {
         "index": compute_index(results),
         "project": {"name": cfg.project.name, "site_url": cfg.project.site_url},
