@@ -11,7 +11,7 @@
 
 ## 📊 What is the AI Trust Index?
 
-The **AI Trust Index (ATI)** is an open standard that distills responsible IT and AI governance into a single, comparable **0–10 score** across 11 structured directions (G1–G11). It is universal: every IT project can be audited on the governance directions (G1–G7), while AI-specific directions (G8–G11) only apply — and only count — when the project actually uses AI.
+The **AI Trust Index (ATI)** is an open standard that distills responsible IT and AI governance into a single, comparable **0–10 score** across 12 structured directions (G1–G12). It is universal: every IT project can be audited on the governance directions (G1–G7) and the infrastructure hardening direction (G12); AI-specific directions (G8–G11) only apply — and only count — when the project actually uses AI.
 
 The standard is created by **Rashid Kabzhanov**. Full methodology and public registry: [bizdnai.com/index/](https://bizdnai.com/index/)
 
@@ -20,7 +20,8 @@ The standard is created by **Rashid Kabzhanov**. Full methodology and public reg
 ## ✨ Key Features
 
 - **Universal IT + AI scope** — meaningful score for any software project; AI directions activate only when relevant
-- **11 structured directions G1–G11** — from systems registry and risk analysis through behavioral red-teaming
+- **12 structured directions G1–G12** — from systems registry and risk analysis through behavioral red-teaming and infrastructure hardening
+- **Infrastructure attack-surface audit (G12)** — checks firewall status, exposed ports, container network bypass, and unauthenticated endpoints; privacy-first: sensitive data never leaves the host
 - **Jurisdiction-aware national-law compliance (G9)** — selects the applicable law by `project.country`; extensible registry, contributions welcome
 - **Behavioral red-team of the live model (G11)** — actually probes the running model endpoint, not just reads the system prompt
 - **Privacy-first** — runs entirely on your machine; `--submit` sends only computed scores + optional signature, never raw documents or PII
@@ -51,6 +52,12 @@ The standard is created by **Rashid Kabzhanov**. Full methodology and public reg
 | G9 | National AI-law compliance | Jurisdiction-aware; driven by `project.country` |
 | G10 | ISO/IEC 42001 | AI management system alignment |
 | G11 | Behavioral robustness | Live red-team probing of the model endpoint |
+
+### Infrastructure direction — scored when the project has server infrastructure
+
+| Code | Direction | Notes |
+|------|-----------|-------|
+| G12 | Infrastructure hardening | Attack-surface audit: firewall status, exposed ports, container network bypass, unauthenticated endpoints. **Opt-in for public index** — scored locally by default; included in `--submit` payload only with explicit owner consent. See [`docs/G12_METHODOLOGY.md`](docs/G12_METHODOLOGY.md) for the full rubric. |
 
 **Index = mean of all active and applicable directions.**
 
@@ -181,6 +188,7 @@ The self-audit (`ati-audit run --self`) is **free, open-source, and runs entirel
 PRs are welcome, especially for:
 - **New jurisdictions** — add an entry to [`ati_audit/jurisdictions.yaml`](ati_audit/jurisdictions.yaml)
 - **New G11 probes** — extend [`ati_audit/probes/core.yaml`](ati_audit/probes/core.yaml)
+- **G12 collector** — a server-side agent implementing the [`docs/G12_METHODOLOGY.md`](docs/G12_METHODOLOGY.md) rubric; CLI integration is on the roadmap
 
 Before submitting, run:
 
