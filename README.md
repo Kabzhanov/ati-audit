@@ -1,11 +1,19 @@
-# 🛡️ ati-audit
+<p align="center">
+  <h1 align="center">🛡️ ati-audit</h1>
+  <p align="center">
+    The open auditor for the <strong>AI Trust Index</strong> — one honest 0–10 number for how responsibly an IT/AI project is built.
+  </p>
+  <p align="center">
+    <a href="LICENSE"><img src="https://img.shields.io/badge/License-Apache_2.0-blue.svg" alt="License: Apache-2.0"></a>
+    <img src="https://img.shields.io/badge/Python-3.11%2B-blue?logo=python&logoColor=white" alt="Python 3.11+">
+    <a href="https://github.com/Kabzhanov/ati-audit/pulls"><img src="https://img.shields.io/badge/PRs-welcome-brightgreen.svg" alt="PRs Welcome"></a>
+    <a href="https://bizdnai.com/index/"><img src="https://img.shields.io/badge/Standard-ATI_Open_Standard-blueviolet" alt="ATI Open Standard"></a>
+  </p>
+</p>
 
-**The open auditor for the AI Trust Index — one honest 0–10 number for how responsibly an IT/AI project is built.**
+---
 
-[![License: Apache-2.0](https://img.shields.io/badge/License-Apache--2.0-blue.svg)](LICENSE)
-[![Python 3.11+](https://img.shields.io/badge/Python-3.11%2B-blue?logo=python&logoColor=white)](https://www.python.org/)
-[![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](https://github.com/Kabzhanov/ati-audit/pulls)
-[![Standard](https://img.shields.io/badge/ATI_Standard-bizdnai.com%2Findex%2F-blueviolet)](https://bizdnai.com/index/)
+> **Sibling project:** [ValIQ](https://github.com/Kabzhanov/valiq) — the valuation companion that converts your ATI score into a USD product valuation range.
 
 ---
 
